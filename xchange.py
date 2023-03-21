@@ -49,6 +49,10 @@ cursor.execute("SELECT * FROM last_run")
 result = cursor.fetchone()
 start_date = result[0]
 
+# Break if start date > current date
+if datetime.strptime(start_date, '%d/%m/%Y') >= datetime.today():
+    print("Start date is greater than current date")
+    exit()
 
 def login(page, context):
     time.sleep(2)
@@ -127,6 +131,10 @@ with sync_playwright() as playwright:
             df.to_csv(file_name, sep='|', index=False)
             start_date = end_date
             cursor.execute("UPDATE last_run SET date = ?", (end_date,))
+
+            # Run the loop until current date
+            if datetime.strptime(start_date, '%d/%m/%Y') >= datetime.today():
+                break
     except:
         conn.commit()
         print("Error")
